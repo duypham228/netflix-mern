@@ -1,5 +1,15 @@
 export async function signup(req, res) {
-  res.send("Signup route");
+  try {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, error: "All fields are required" });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  } catch (error) {}
 }
 
 export async function signin(req, res) {
