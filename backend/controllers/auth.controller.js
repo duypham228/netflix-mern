@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 
 export async function signup(req, res) {
   try {
@@ -53,8 +54,8 @@ export async function signup(req, res) {
       image,
     });
 
+    generateTokenAndSetCookie(newUser._id, res);
     await newUser.save();
-
     res.status(201).json({
       success: true,
       user: {
@@ -73,5 +74,11 @@ export async function signin(req, res) {
 }
 
 export async function signout(req, res) {
-  res.send("Signout route");
+  try {
+    res.clearCookie("jwt-netflix");
+    res.status(200).json({ success: true, message: "Signout successfully" });
+  } catch (error) {
+    console.error(`Error in signout controller: ${error.message}`);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
 }

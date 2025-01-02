@@ -7,6 +7,6 @@ router.post("/signup", signup);
 
 router.post("/signin", signin);
 
-router.post("/signout", signout);
+router.post("/logout", signout);
 
 export default router;
