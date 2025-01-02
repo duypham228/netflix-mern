@@ -69,11 +69,46 @@ export async function signup(req, res) {
   }
 }
 
-export async function signin(req, res) {
-  res.send("Signin route");
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, error: "All fields are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Invalid credentials" });
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Invalid credentials" });
+    }
+
+    generateTokenAndSetCookie(user._id, res);
+    res.status(200).json({
+      success: true,
+      user: {
+        ...user._doc,
+        password: "",
+      },
+    });
+  } catch (error) {
+    console.error(`Error in signin controller: ${error.message}`);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
 }
 
-export async function signout(req, res) {
+export async function logout(req, res) {
   try {
     res.clearCookie("jwt-netflix");
     res.status(200).json({ success: true, message: "Signout successfully" });
